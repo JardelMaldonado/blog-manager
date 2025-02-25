@@ -24,9 +24,9 @@ const Postagem = new Schema({
         require: true
     },
     data: {
-        type: date,
+        type: Date,
         default: Date.now()
 }
 })
 
-mongoose.model("postagens", Postagens)
+mongoose.model("postagens", Postagem)

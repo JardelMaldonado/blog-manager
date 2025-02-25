@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router()
 const mongoose = require('mongoose')
 require("../models/Categorias")
+require("../models/Postagens")
 const Categoria = mongoose.model("categorias")
+const Postagem = mongoose.model("postagens");
+
 
 router.get('/',(req, res) => {
     res.render("admin/index")
@@ -94,16 +97,51 @@ router.post("/categorias/deletar", (req, res) => {
 })
 
 router.get("/postagens", (req, res) => {
-    res.render("admin/postagens")
+
+    Postagem.find().lean().populate("categoria").sort({date: "desc"}).then((postagens) => {
+        res.render("admin/postagens", {postagens: postagens})
+    }).catch((err) => {
+        req.flash("error_msg", "Houve um erro ao listar as postagens")
+        res.redirect("/admin")
+    })
 })
 
 router.get("/postagens/add", (req, res) => {
     Categoria.find().lean().then((categorias) => {
-        res.render("admin/addpostagens", {categorias: categorias || []})
+        res.render("admin/addpostagens", {categorias: categorias})
     }).catch((err) => {
         req.flash("error_msg", "Houve um erro ao carregar o formulário")
         res.redirect("admin")
     })
+})
+
+router.post("/postagens/nova", (req, res) => {
+
+    var erros = []
+
+    if(req.body.categoria == "0"){
+        erros.push({texto: "Categoria inválida, registre uma categoria"})
+    }
+
+    if(erros.length > 0){
+        res.render("admin/addpostagem", {erros: erros})
+    }else{
+         const novaPostagem = {
+            titulo: req.body.titulo,
+            descricao: req.body.descricao,
+            conteudo: req.body.conteudo,
+            categoria: req.body.categoria,
+            slug: req.body.slug
+         }
+
+         new Postagem(novaPostagem).save().then(() => {
+            req.flash("success_msg", "Postagem criada com sucesso!")
+            res.redirect("/admin/postagens")
+         }).catch((err) => {
+            req.flash("error_msg", "Houve um erro durante o salvamento da postagem")
+            res.redirect("/admin/postagens")
+         })
+    }
 })
 
 
