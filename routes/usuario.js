@@ -9,19 +9,19 @@ router.get("/registro", (req, res) => {
     res.render("usuarios/registro")
 })
 
-router.post("/regsitro", (req, res) => {
+router.post("/registro", (req, res) => {
     var erros = []
 
-    if(!req.body.nome || typeof req.body.nome == undefined || req.body.nome == null){
+    if(!req.body.nome){
         erros.push({texto: "Nome inválido"})
     }
-    if(!req.body.email || typeof req.body.email == undefined || req.body.email == null){
+    if(!req.body.email){
         erros.push({texto: "E-mail inválido"})
     }
-    if(!req.body.senha || typeof req.body.senha == undefined || req.body.senha == null){
+    if(!req.body.senha){
         erros.push({texto: "Senha inválido"})
     }
-    if(req.body.senha.length < 4){
+    if(!req.body.senha && req.body.senha.length < 4){
         erros.push({texto: "Senha muito curta"})
     }
     if(req.body.senha != req.body.senha2){
@@ -53,7 +53,7 @@ router.post("/regsitro", (req, res) => {
 
                         novoUsuario.senha = hash
 
-                        novoUsuario.save.then(() => {
+                        novoUsuario.save().then(() => {
                             req.flash("success_msg", "Usuário criado com sucesso! ")
                             res.redirect("/")
                         }).catch((err) => {
