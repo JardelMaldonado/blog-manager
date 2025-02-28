@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router()
 const mongoose = require('mongoose')
-require("../models/Categorias")
-require("../models/Postagens")
+require("../models/Categoria")
+require("../models/Postagem")
 const Categoria = mongoose.model("categorias")
 const Postagem = mongoose.model("postagens");
 

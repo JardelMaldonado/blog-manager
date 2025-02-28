@@ -21,7 +21,7 @@
             <label for="categoria" class="mt-1">Categoria: </label>
             <select name="categoria" class="form-select"> 
                 {{#each categorias}}
-                <option value="{{categoria._id}}">{{nome}}</option>
+                <option value="{{_id}}">{{nome}}</option>
                     {{else}}
                 <option value="0">Nenhuma categoria registrada</option>
                 {{/each}}
