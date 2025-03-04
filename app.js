@@ -15,6 +15,7 @@ const Categoria = mongoose.model("categorias")
 const usuarios = require('./routes/usuario');
 const passport = require('passport');
 require("./config/auth")(passport)
+const db = require("./config/db")
 // Configuracoes
 //Sessao
 app.use(session({
@@ -32,6 +33,7 @@ app.use((req, res, next) => {
   res.locals.success_msg = req.flash("success_msg")
   res.locals.error_msg = req.flash("error_msg")
   res.locals.error = req.flash("error")
+  res.locals.user = req.user || null;
   next();
 })
 // Body Paser
@@ -45,7 +47,7 @@ app.engine('handlebars', engine({
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 //Mongoose
-mongoose.connect("mongodb://localhost/blogapp").then(() => {
+mongoose.connect(db.mongoURI).then(() => {
   console.log("Conectado ao mongo")
 }).catch((err) => {
   console.log("Erro ao se conectar" + err)
@@ -100,7 +102,7 @@ app.get("/categorias/:slug", (req, res) => {
 app.use('/admin', admin)
 app.use('/usuarios', usuarios)
 // Outros
-const PORT = 8081
+const PORT = process.env.PORT || 8081
 app.listen(PORT, () => {
   console.log('Servidor rodando! ')
 })
