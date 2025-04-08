@@ -13,6 +13,7 @@
   },
   "name": "blog-manager",
   "version": "1.0.0",
+  "type": "module",
   "description": "Projeto para gerenciar categorias e postagens, permitindo adicionar e remover conteúdos dinamicamente.",
   "main": "app.js",
   "devDependencies": {},

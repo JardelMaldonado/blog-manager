@@ -1,11 +1,14 @@
-const express = require('express');
-const router = express.Router()
-const mongoose = require('mongoose')
-require("../models/Categoria")
-require("../models/Postagem")
-const Categoria = mongoose.model("categorias")
+import express from 'express';
+const router = express.Router();
+
+import mongoose from 'mongoose';
+import '../models/Categoria.js';
+import '../models/Postagem.js';
+
+const Categoria = mongoose.model("categorias");
 const Postagem = mongoose.model("postagens");
-const {eAdmin} = require("../helpers/eAdmin")
+
+import { eAdmin } from '../helpers/eAdmin.js';
 
 
 
@@ -193,4 +196,4 @@ router.get("/postagens/deletar/:id", eAdmin, (req, res) => {
     })
 })
 
-module.exports = router
+export default router;

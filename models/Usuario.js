@@ -1,23 +1,24 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+import mongoose from 'mongoose';
 
-const Usuario = new Schema({
-    nome: {
-        type: String,
-        required: true
-    },
-    email: {
-        type: String,
-        required: true
-    },
-    eAdmin: {
-        type: Number,
-        default: 0
-    },
-    senha: {
-        type: String,
-        required: true
-    }
-})
+const { Schema } = mongoose;
 
-mongoose.model("usuarios", Usuario)
+const UsuarioSchema = new Schema({
+  nome: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true
+  },
+  eAdmin: {
+    type: Number,
+    default: 0
+  },
+  senha: {
+    type: String,
+    required: true
+  }
+});
+
+mongoose.model("usuarios", UsuarioSchema);
