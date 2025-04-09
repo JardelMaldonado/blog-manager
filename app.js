@@ -12,7 +12,9 @@ import passport from 'passport';
 import admin from './routes/admin.js';
 import usuarios from './routes/usuario.js';
 import { mongoURI } from './config/db.js';
-import './config/auth.js'; // não precisa importar como variável
+import configPassport from './config/auth.js';
+configPassport(passport);
+ // não precisa importar como variável
 
 // Recuperar __dirname para ES Modules
 const __filename = fileURLToPath(import.meta.url);
