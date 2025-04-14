@@ -9,18 +9,19 @@ const Categoria = mongoose.model("categorias");
 const Postagem = mongoose.model("postagens");
 
 import { eAdmin } from '../helpers/eAdmin.js';
+import authJWT from '../config/auth.js';
 
 
 
-router.get('/', eAdmin, (req, res) => {
-    res.render("admin/index")
+router.get('/', authJWT, (req, res) => {
+    res.render("views/index");
 })
 
-router.get('/posts', eAdmin, (req, res) => {
+router.get('/posts', authJWT, (req, res) => {
     res.send("Pagina de posts")
 })
 
-router.get('/categorias', eAdmin, (req, res) => {
+router.get('/categorias', authJWT, (req, res) => {
     Categoria.find().sort({ date: 'desc' }).then((categorias) => {
         const categoriasFormatadas = categorias.map(categoria => categoria.toObject());// Covertendo categorias para javascript puro
         res.render("admin/categorias", { categorias: categoriasFormatadas });
@@ -29,10 +30,10 @@ router.get('/categorias', eAdmin, (req, res) => {
         req.redirect("admin")
     })
 })
-router.get('/categorias/add', eAdmin, (req, res) => {
+router.get('/categorias/add', authJWT, (req, res) => {
     res.render("admin/addcategorias")
 })
-router.post('/categorias/nova', eAdmin, (req, res) => {
+router.post('/categorias/nova', authJWT, (req, res) => {
 
     var erros = []
 
@@ -61,7 +62,7 @@ router.post('/categorias/nova', eAdmin, (req, res) => {
         })
     }
 })
-router.get("/categorias/edit/:id", eAdmin, (req, res) => {
+router.get("/categorias/edit/:id", authJWT, (req, res) => {
     Categoria.findOne({ _id: req.params.id }).lean().then((categoria) => {
         res.render("admin/editcategorias", { categoria: categoria })
     }).catch((err) => {
@@ -71,7 +72,7 @@ router.get("/categorias/edit/:id", eAdmin, (req, res) => {
 
 })
 
-router.post("/categorias/edit", eAdmin, (req, res) => {
+router.post("/categorias/edit", authJWT, (req, res) => {
     Categoria.findOne({ _id: req.body.id }).then((categoria) => {
 
         categoria.nome = req.body.nome
@@ -91,7 +92,7 @@ router.post("/categorias/edit", eAdmin, (req, res) => {
     })
 })
 
-router.post("/categorias/deletar", eAdmin, (req, res) => {
+router.post("/categorias/deletar", authJWT, (req, res) => {
     Categoria.deleteOne({ _id: req.body.id }).then(() => {
         req.flash("success_msg", "Categoria deletada com sucesso!")
         res.redirect("/admin/categorias")
@@ -101,7 +102,7 @@ router.post("/categorias/deletar", eAdmin, (req, res) => {
     })
 })
 
-router.get("/postagens", eAdmin, (req, res) => {
+router.get("/postagens", authJWT, (req, res) => {
 
     Postagem.find().lean().populate("categoria").sort({ date: "desc" }).then((postagens) => {
         res.render("admin/postagens", { postagens: postagens })
@@ -111,7 +112,7 @@ router.get("/postagens", eAdmin, (req, res) => {
     })
 })
 
-router.get("/postagens/add", eAdmin, (req, res) => {
+router.get("/postagens/add", authJWT, (req, res) => {
     Categoria.find().lean().then((categorias) => {
         res.render("admin/addpostagens", { categorias: categorias })
     }).catch((err) => {
@@ -120,7 +121,7 @@ router.get("/postagens/add", eAdmin, (req, res) => {
     })
 })
 
-router.post("/postagens/nova", eAdmin, (req, res) => {
+router.post("/postagens/nova", authJWT, (req, res) => {
 
     var erros = []
 
@@ -149,7 +150,7 @@ router.post("/postagens/nova", eAdmin, (req, res) => {
     }
 })
 
-router.get("/postagens/edit/:id", eAdmin, (req, res) => {
+router.get("/postagens/edit/:id", authJWT, (req, res) => {
     Postagem.findOne({ _id: req.params.id }).lean().then((postagem) => {
 
         Categoria.find().lean().then((categorias) => {
@@ -163,7 +164,7 @@ router.get("/postagens/edit/:id", eAdmin, (req, res) => {
 
 })
 
-router.post("/postagem/edit", eAdmin, (req, res) => {
+router.post("/postagem/edit", authJWT, (req, res) => {
     Postagem.findOne({ _id: req.body.id }).then((postagem) => {
 
         postagem.titulo = req.body.titulo
@@ -186,7 +187,7 @@ router.post("/postagem/edit", eAdmin, (req, res) => {
     })
 })
 
-router.get("/postagens/deletar/:id", eAdmin, (req, res) => {
+router.get("/postagens/deletar/:id", authJWT, (req, res) => {
     Postagem.deleteOne({ _id: req.params.id }).lean().then(() => {
         req.flash("success_msg", "Postagem deletada com sucesso!")
         res.redirect("/admin/postagens")

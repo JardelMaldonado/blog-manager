@@ -1,46 +1,25 @@
 import { Strategy as LocalStrategy } from "passport-local";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import jwt from 'jsonwebtoken';
 
-import "../models/Usuario.js";
-const Usuario = mongoose.model("usuarios");
+const JWT_SECRET = 'sua_chave_secreta_segura'; // ideal usar dotenv
 
-export default function(passport) {
-  passport.use(
-    new LocalStrategy(
-      { usernameField: "email", passwordField: "senha" },
-      async (email, senha, done) => {
-        try {
-          const usuario = await Usuario.findOne({ email: email });
+export default function authJWT(req, res, next) {
+  const token = req.cookies.token;
 
-          if (!usuario) {
-            return done(null, false, { message: "Esta conta não existe" });
-          }
+  if (!token) {
+    req.flash("error_msg", "Você precisa estar logado para acessar essa página");
+    return res.redirect("/usuarios/login");
+  }
 
-          const batem = await bcrypt.compare(senha, usuario.senha);
-
-          if (batem) {
-            return done(null, usuario);
-          } else {
-            return done(null, false, { message: "Senha incorreta" });
-          }
-        } catch (error) {
-          return done(error);
-        }
-      }
-    )
-  );
-
-  passport.serializeUser((usuario, done) => {
-    done(null, usuario.id);
-  });
-
-  passport.deserializeUser(async (id, done) => {
-    try {
-      const usuario = await Usuario.findById(id);
-      done(null, usuario);
-    } catch (err) {
-      done(err, null);
-    }
-  });
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    req.flash("error_msg", "Sessão inválida, faça login novamente");
+    res.redirect("/usuarios/login");
+  }
 }
+

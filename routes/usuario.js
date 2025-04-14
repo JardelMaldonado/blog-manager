@@ -2,11 +2,14 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import passport from 'passport';
+import jwt from 'jsonwebtoken';
 
 import '../models/Usuario.js';
-const Usuario = mongoose.model("usuarios");
 
+const Usuario = mongoose.model("usuarios");
 const router = express.Router();
+
+const JWT_SECRET = 'sua_chave_secreta_segura';
 
 router.get("/registro", (req, res) => {
   res.render("usuarios/registro");
@@ -80,20 +83,49 @@ router.get("/login", (req, res) => {
   res.render("usuarios/login");
 });
 
-router.post("/login", (req, res, next) => {
-  passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/usuarios/login",
-    failureFlash: true,
-  })(req, res, next);
+router.post("/login", async (req, res) => {
+  const { email, senha } = req.body;
+
+  try {
+    const user = await Usuario.findOne({ email });
+    if (!user) {
+      req.flash("error_msg", "Usuário não encontrado");
+      return res.redirect("/usuarios/login");
+    }
+
+    const senhaCorreta = await bcrypt.compare(senha, user.senha);
+    if (!senhaCorreta) {
+      req.flash("error_msg", "Senha incorreta");
+      return res.redirect("/usuarios/login");
+    }
+
+    const token = jwt.sign(
+      { id: user._id, nome: user.nome },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false, // colocar true em produção com HTTPS
+      maxAge: 3600000 // 1h
+    });
+
+    req.flash("success_msg", "Login realizado com sucesso!");
+    res.redirect("/admin"); // ou onde for sua área protegida
+
+  } catch (err) {
+    console.error(err);
+    req.flash("error_msg", "Erro interno no login");
+    res.redirect("/usuarios/login");
+  }
 });
 
-router.get("/logout", (req, res, next) => {
-  req.logout(function (err) {
-    if (err) return next(err);
-    req.flash("success_msg", "Deslogado com sucesso");
-    res.redirect("/");
-  });
+// LOGOUT (remove cookie)
+router.get("/logout", (req, res) => {
+  res.clearCookie('token');
+  req.flash("success_msg", "Deslogado com sucesso");
+  res.redirect("/");
 });
 
 export default router;

@@ -8,13 +8,12 @@ import { model, connect } from 'mongoose';
 import session from 'express-session';
 import flash from 'connect-flash';
 import passport from 'passport';
+import cookieParser from 'cookie-parser';
 
 import admin from './routes/admin.js';
 import usuarios from './routes/usuario.js';
 import { mongoURI } from './config/db.js';
-import configPassport from './config/auth.js';
-configPassport(passport);
- // não precisa importar como variável
+
 
 // Recuperar __dirname para ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -36,9 +35,16 @@ app.use(session({
   saveUninitialized: true
 }));
 
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+  console.log(req.cookies);  // Isso vai imprimir todos os cookies
+  next();
+});
+
 app.use(flash());
+
+
 
 // Middleware de mensagens flash e usuário logado
 app.use((req, res, next) => {
